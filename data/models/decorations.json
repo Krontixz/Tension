@@ -1,19 +1,41 @@
-{
-  "name": "cargo_box",
-  "texture_path": "assets/textures/gui/decorations/cargo_box.png",
-  "elements": [
-    {
-      "name": "box_mesh",
-      "from":,
-      "to":,
-      "faces": {
-        "north": {"uv":},
-        "south": {"uv":},
-        "east": {"uv":},
-        "west": {"uv":},
-        "up": {"uv":},
-        "down": {"uv":}
+[
+  {
+    "name": "cargo_box",
+    "texture_path": "assets/textures/gui/decorations/cargo_box.png",
+    "elements": [
+      {
+        "name": "box_mesh",
+        "from": [-2, 0, -2],
+        "to": [2, 2],
+        "faces": {
+          "north": {"uv":},
+          "south": {"uv":},
+          "east": {"uv":},
+          "west": {"uv":},
+          "up": {"uv":},
+          "down": {"uv":}
+        }
       }
+    ]
+  },
+  {
+    "name": "meeting_emergency_button",
+    "texture_path": "assets/textures/gui/decorations/meeting_button.png",
+    "elements": [
+      {
+        "name": "button_frame",
+        "from": [-2, 0, -0.25],
+        "to": [2],
+        "faces": {
+          "north": {"uv":},
+          "south": {"uv":}
+        }
+      }
+    ],
+    "interaction": {
+      "key": "R",
+      "radius": 1.5,
+      "action_path": "logic/actions/meeting/"
     }
-  ]
-}
+  }
+]
