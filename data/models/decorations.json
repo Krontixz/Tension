@@ -1,0 +1,19 @@
+{
+  "name": "cargo_box",
+  "texture_path": "assets/textures/gui/decorations/cargo_box.png",
+  "elements": [
+    {
+      "name": "box_mesh",
+      "from":,
+      "to":,
+      "faces": {
+        "north": {"uv":},
+        "south": {"uv":},
+        "east": {"uv":},
+        "west": {"uv":},
+        "up": {"uv":},
+        "down": {"uv":}
+      }
+    }
+  ]
+}
