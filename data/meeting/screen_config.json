@@ -1,0 +1,28 @@
+{
+  "screen_id": "meeting_ui",
+  "resolution": {
+    "width": 1152,
+    "height": 648
+  },
+  "assets": [
+    "assets/textures/gui/meeting/background.png",
+    "assets/textures/gui/meeting/player_slot.png",
+    "assets/textures/gui/meeting/timer_bar.png",
+    "assets/textures/gui/meeting/vote_button.png",
+    "assets/textures/gui/meeting/skip_button.png"
+  ],
+  "layout": {
+    "timer": {
+      "x": 576,
+      "y": 50,
+      "width": 800,
+      "height": 20
+    },
+    "grid": {
+      "rows": 2,
+      "cols": 3,
+      "padding": 40,
+      "slot_size": 200
+    }
+  }
+}
