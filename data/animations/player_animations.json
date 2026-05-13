@@ -1,0 +1,129 @@
+{
+  "animation.player.walk_right": {
+    "length": 0.375,
+    "loop": true,
+    "bones": {
+      "Right arm": {
+        "rotation": {
+          "0": [-0.1223, 0.3724, -17.5316],
+          "0.375": [0.4477, 3.3852, -0.2816]
+        }
+      },
+      "Left arm": {
+        "rotation": {
+          "0":,
+          "0.375": [0, 0, -25]
+        }
+      },
+      "Left Leg": {
+        "rotation": {
+          "0": [0, 0, -25],
+          "0.375":
+        }
+      },
+      "Right leg": {
+        "rotation": {
+          "0":,
+          "0.375": [0, 0, -25]
+        }
+      }
+    }
+  },
+  "animation.player.glitch": {
+    "length": 1.75,
+    "loop": true,
+    "sound": "assets/sounds/animations/glitch/glitch_sound.ogg",
+    "bones": {
+      "Torso": {
+        "position": {
+          "0":,
+          "0.5":,
+          "1.25":,
+          "1.58333":
+        }
+      },
+      "Head": {
+        "rotation": {
+          "0":,
+          "0.5":,
+          "1.25":,
+          "1.58333":,
+          "1.75":
+        }
+      }
+    }
+  },
+  "animation.player.hacked": {
+    "length": 1.0,
+    "loop": true,
+    "sound": "assets/sounds/animations/hacked/dramatic_noise.ogg",
+    "bones": {
+      "Right arm": {
+        "rotation": {
+          "0":,
+          "0.375":
+        },
+        "position": {
+          "0":,
+          "1":
+        }
+      },
+      "Left arm": {
+        "rotation": {
+          "0":,
+          "0.375":,
+          "1":
+        },
+        "position": {
+          "0":,
+          "1":
+        }
+      }
+    }
+  },
+  "animation.player.role_reaction": {
+    "length": 1.75,
+    "loop": false,
+    "sound": "assets/sounds/animations/role_reaction/blast_off.ogg",
+    "bones": {
+      "Player": {
+        "rotation": {
+          "0":,
+          "1.5": [0, 0, 37.5]
+        },
+        "position": {
+          "0":,
+          "1.25":,
+          "1.75": [-11, 20, 0]
+        }
+      },
+      "Left arm": {
+        "rotation": {
+          "0":,
+          "0.25": [0, 0, -85]
+        }
+      }
+    }
+  },
+  "animation.player.vote": {
+    "length": 1.5,
+    "loop": true,
+    "bones": {
+      "Right arm": {
+        "rotation": {
+          "0":,
+          "0.5": [0, 0, -92.5]
+        },
+        "position": {
+          "0": [0, 0, -1]
+        }
+      },
+      "Head": {
+        "position": {
+          "0":,
+          "1.5":
+        }
+      }
+    }
+  }
+}
