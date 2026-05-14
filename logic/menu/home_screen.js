@@ -1,3 +1,59 @@
+const menuAssets = {
+  background: "assets/textures/gui/menu/space_bg.png",
+  logo: "assets/textures/gui/menu/logo.png",
+  button: "assets/textures/gui/menu/button_base.png",
+  buttonHover: "assets/textures/gui/menu/button_hover.png",
+  inputField: "assets/textures/gui/menu/input_field.png"
+};
+
+let loadedMenuImages = {};
+let activeScreen = "auth"; 
+let hoveredButton = null;
+let currentUsernameText = "";
+let currentPasswordText = "";
+let activeInputField = "username";
+
+async function loadMenuTextures() {
+  const promises = Object.entries(menuAssets).map(([key, path]) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = path;
+      img.onload = () => {
+        loadedMenuImages[key] = img;
+        resolve();
+      };
+      img.onerror = () => {
+        reject(`Failed to load: ${path}`);
+      };
+    });
+  });
+
+  await Promise.all(promises);
+  startMenuLoop();
+}
+
+function startMenuLoop() {
+  const canvas = document.getElementById("menuCanvas") || createMenuCanvas();
+  const ctx = canvas.getContext("2d");
+
+  function loop() {
+    renderMenu(ctx);
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function createMenuCanvas() {
+  const canvas = document.createElement("canvas");
+  canvas.id = "menuCanvas";
+  canvas.width = 1152;
+  canvas.height = 648;
+  canvas.style.cssText = "position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#000; z-index:1000;";
+  document.body.appendChild(canvas);
+  setupMenuControls(canvas);
+  return canvas;
+}
+
 function renderMenu(ctx) {
   ctx.clearRect(0, 0, 1152, 648);
 
@@ -6,25 +62,24 @@ function renderMenu(ctx) {
   }
 
   if (activeScreen === "auth") {
-    ctx.fillStyle = "#00ffff";
-    ctx.font = "32px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("TENSION // INITIALIZING...", 576, 150);
+    if (loadedMenuImages.logo) {
+      ctx.drawImage(loadedMenuImages.logo, 376, 50, 400, 100);
+    }
 
     Object.keys(inputs).forEach(key => {
       const input = inputs[key];
       if (loadedMenuImages.inputField) {
         ctx.drawImage(loadedMenuImages.inputField, input.x, input.y, input.w, input.h);
       }
+      
       ctx.fillStyle = activeInputField === key ? "#fff" : "#555";
       ctx.font = "14px monospace";
-      ctx.textAlign = "left";
       ctx.fillText(input.label, input.x, input.y - 10);
       
       ctx.fillStyle = "#fff";
       ctx.font = "18px monospace";
-      let text = (key === "username") ? currentUsernameText : "*".repeat(currentPasswordText.length);
-      ctx.fillText(text, input.x + 10, input.y + 25);
+      let displayValue = (key === "username") ? currentUsernameText : "*".repeat(currentPasswordText.length);
+      ctx.fillText(displayValue, input.x + 10, input.y + 25);
     });
 
     renderButtons(ctx, buttons.auth);
@@ -49,75 +104,8 @@ function renderButtons(ctx, buttonList) {
     ctx.font = "20px monospace";
     ctx.textAlign = "center";
     ctx.fillText(btn.text, btn.x + (btn.w / 2), btn.y + (btn.h / 2) + 7);
+    ctx.textAlign = "left";
   });
 }
 
-function setupMenuControls(canvas) {
-  canvas.addEventListener("mousemove", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    
-    hoveredButton = null;
-    const currentButtons = activeScreen === "auth" ? buttons.auth : buttons.mainMenu;
-    
-    currentButtons.forEach(btn => {
-      if (mx > btn.x && mx < btn.x + btn.w && my > btn.y && my < btn.y + btn.h) {
-        hoveredButton = btn.id;
-      }
-    });
-  });
-
-  canvas.addEventListener("mousedown", (e) => {
-    if (activeScreen === "auth") {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      Object.keys(inputs).forEach(key => {
-        const input = inputs[key];
-        if (mx > input.x && mx < input.x + input.w && my > input.y && my < input.y + input.h) {
-          activeInputField = key;
-        }
-      });
-
-      if (hoveredButton === "authenticate") {
-        if (currentUsernameText && currentPasswordText) {
-          authenticateUser();
-        }
-      }
-    }
-  });
-
-  window.addEventListener("keydown", (e) => {
-    if (activeScreen === "auth") {
-      if (e.key === "Backspace") {
-        if (activeInputField === "username") currentUsernameText = currentUsernameText.slice(0, -1);
-        else currentPasswordText = currentPasswordText.slice(0, -1);
-      } else if (e.key.length === 1) {
-        if (activeInputField === "username") currentUsernameText += e.key;
-        else currentPasswordText += e.key;
-      }
-    }
-  });
-}
-
-async function authenticateUser() {
-  const response = await fetch('data/saves/player.json');
-  const data = await response.json();
-  
-  data.accounts.push({
-    username: currentUsernameText,
-    password: currentPasswordText,
-    created_at: Date.now()
-  });
-
-  data.current_session = {
-    "tension:player_username": currentUsernameText,
-    "is_logged_in": true
-  };
-
-  activeScreen = "main";
-}
-
-initMenuSystem();
+loadMenuTextures();
