@@ -1,6 +1,6 @@
 const menuAssets = {
   background: "assets/textures/gui/menu/space_bg.png",
-  logo: "assets/textures/gui/menu/logo.png",
+  logo: "assets/textures/gui/menu/TENSION.png",
   button: "assets/textures/gui/menu/button_base.png",
   buttonHover: "assets/textures/gui/menu/button_hover.png",
   inputField: "assets/textures/gui/menu/input_field.png"
