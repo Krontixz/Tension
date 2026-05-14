@@ -1,103 +1,123 @@
-const menuAssets = {
-  background: "assets/textures/gui/menu/space_bg.png",
-  logo: "assets/textures/gui/menu/logo.png",
-  button: "assets/textures/gui/menu/button_base.png"
-};
+function renderMenu(ctx) {
+  ctx.clearRect(0, 0, 1152, 648);
 
-function createAuthScreen() {
-  const container = document.createElement('div');
-  container.id = 'auth-screen';
-  container.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#050505;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:monospace;color:#00ffff;z-index:1000;';
+  if (loadedMenuImages.background) {
+    ctx.drawImage(loadedMenuImages.background, 0, 0, 1152, 648);
+  }
 
-  const title = document.createElement('h1');
-  title.innerText = "TENSION // INITIALIZING...";
-  title.style.marginBottom = "30px";
+  if (activeScreen === "auth") {
+    ctx.fillStyle = "#00ffff";
+    ctx.font = "32px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("TENSION // INITIALIZING...", 576, 150);
 
-  const userField = document.createElement('input');
-  userField.type = "text";
-  userField.placeholder = "USERNAME";
-  userField.id = "reg-user";
-  userField.style.cssText = 'background:#000;border:1px solid #00ffff;color:#fff;padding:10px;margin:5px;width:250px;outline:none;';
+    Object.keys(inputs).forEach(key => {
+      const input = inputs[key];
+      if (loadedMenuImages.inputField) {
+        ctx.drawImage(loadedMenuImages.inputField, input.x, input.y, input.w, input.h);
+      }
+      ctx.fillStyle = activeInputField === key ? "#fff" : "#555";
+      ctx.font = "14px monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(input.label, input.x, input.y - 10);
+      
+      ctx.fillStyle = "#fff";
+      ctx.font = "18px monospace";
+      let text = (key === "username") ? currentUsernameText : "*".repeat(currentPasswordText.length);
+      ctx.fillText(text, input.x + 10, input.y + 25);
+    });
 
-  const passField = document.createElement('input');
-  passField.type = "password";
-  passField.placeholder = "PASSWORD";
-  passField.id = "reg-pass";
-  passField.style.cssText = 'background:#000;border:1px solid #00ffff;color:#fff;padding:10px;margin:5px;width:250px;outline:none;';
-
-  const enterBtn = document.createElement('button');
-  enterBtn.innerText = "AUTHENTICATE";
-  enterBtn.style.cssText = 'margin-top:20px;padding:10px 40px;background:#00ffff;color:#000;border:none;cursor:pointer;font-weight:bold;';
-
-  enterBtn.onclick = async () => {
-    const u = userField.value;
-    const p = passField.value;
-    if (u && p) {
-      await saveUserData(u, p);
-      container.remove();
-      createMainMenu(u);
+    renderButtons(ctx, buttons.auth);
+  } else if (activeScreen === "main") {
+    if (loadedMenuImages.logo) {
+      ctx.drawImage(loadedMenuImages.logo, 376, 100, 400, 100);
     }
-  };
-
-  container.append(title, userField, passField, enterBtn);
-  document.body.appendChild(container);
+    renderButtons(ctx, buttons.mainMenu);
+  }
 }
 
-async function saveUserData(username, password) {
+function renderButtons(ctx, buttonList) {
+  buttonList.forEach(btn => {
+    const isHovered = hoveredButton === btn.id;
+    const img = isHovered ? loadedMenuImages.buttonHover : loadedMenuImages.button;
+    
+    if (img) {
+      ctx.drawImage(img, btn.x, btn.y, btn.w, btn.h);
+    }
+
+    ctx.fillStyle = isHovered ? "#fff" : "#00ffff";
+    ctx.font = "20px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(btn.text, btn.x + (btn.w / 2), btn.y + (btn.h / 2) + 7);
+  });
+}
+
+function setupMenuControls(canvas) {
+  canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    
+    hoveredButton = null;
+    const currentButtons = activeScreen === "auth" ? buttons.auth : buttons.mainMenu;
+    
+    currentButtons.forEach(btn => {
+      if (mx > btn.x && mx < btn.x + btn.w && my > btn.y && my < btn.y + btn.h) {
+        hoveredButton = btn.id;
+      }
+    });
+  });
+
+  canvas.addEventListener("mousedown", (e) => {
+    if (activeScreen === "auth") {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      Object.keys(inputs).forEach(key => {
+        const input = inputs[key];
+        if (mx > input.x && mx < input.x + input.w && my > input.y && my < input.y + input.h) {
+          activeInputField = key;
+        }
+      });
+
+      if (hoveredButton === "authenticate") {
+        if (currentUsernameText && currentPasswordText) {
+          authenticateUser();
+        }
+      }
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (activeScreen === "auth") {
+      if (e.key === "Backspace") {
+        if (activeInputField === "username") currentUsernameText = currentUsernameText.slice(0, -1);
+        else currentPasswordText = currentPasswordText.slice(0, -1);
+      } else if (e.key.length === 1) {
+        if (activeInputField === "username") currentUsernameText += e.key;
+        else currentPasswordText += e.key;
+      }
+    }
+  });
+}
+
+async function authenticateUser() {
   const response = await fetch('data/saves/player.json');
   const data = await response.json();
   
   data.accounts.push({
-    username: username,
-    password: password,
+    username: currentUsernameText,
+    password: currentPasswordText,
     created_at: Date.now()
   });
 
   data.current_session = {
-    "tension:player_username": username,
+    "tension:player_username": currentUsernameText,
     "is_logged_in": true
   };
 
-  console.log("Saving to data/saves/player.json", data);
+  activeScreen = "main";
 }
 
-function createMainMenu(username) {
-  const menu = document.createElement('div');
-  menu.id = 'main-menu';
-  menu.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle, #0a0a1a 0%, #000000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;';
-
-  const welcome = document.createElement('div');
-  welcome.innerText = `LOGGED IN AS: ${username}`;
-  welcome.style.cssText = 'position:absolute;top:20px;left:20px;color:#555;font-family:monospace;font-size:12px;';
-
-  const logo = document.createElement('div');
-  logo.style.cssText = 'width:400px;height:100px;margin-bottom:50px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;color:#fff;font-size:48px;font-weight:bold;letter-spacing:10px;';
-  logo.innerText = "TENSION";
-
-  const btnStyle = 'width:300px;padding:15px;margin:10px;background:rgba(255,255,255,0.05);border:1px solid #ffffff33;color:#fff;cursor:pointer;font-family:monospace;font-size:18px;text-align:left;transition:0.2s;';
-
-  const joinBtn = document.createElement('button');
-  joinBtn.innerText = "> JOIN SERVER";
-  joinBtn.style.cssText = btnStyle;
-  joinBtn.onmouseover = () => joinBtn.style.background = "rgba(255,255,255,0.2)";
-  joinBtn.onmouseout = () => joinBtn.style.background = "rgba(255,255,255,0.05)";
-
-  const createBtn = document.createElement('button');
-  createBtn.innerText = "> CREATE SERVER";
-  createBtn.style.cssText = btnStyle;
-  createBtn.onmouseover = () => createBtn.style.background = "rgba(255,255,255,0.2)";
-  createBtn.onmouseout = () => createBtn.style.background = "rgba(255,255,255,0.05)";
-
-  const offlineBtn = document.createElement('button');
-  offlineBtn.innerText = "> PLAY OFFLINE";
-  offlineBtn.style.cssText = btnStyle;
-  offlineBtn.onmouseover = () => offlineBtn.style.background = "rgba(255,255,255,0.2)";
-  offlineBtn.onmouseout = () => offlineBtn.style.background = "rgba(255,255,255,0.05)";
-
-  menu.append(welcome, logo, joinBtn, createBtn, offlineBtn);
-  document.body.appendChild(menu);
-}
-
-window.onload = () => {
-  createAuthScreen();
-};
+initMenuSystem();
